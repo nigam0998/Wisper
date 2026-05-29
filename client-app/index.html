@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Whisper — Direct Secure Chat</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="screen">
+      <div class="welcome-container">
+        <div class="hero-icon">
+          <svg viewBox="0 0 24 24" width="64" height="64" stroke="var(--accent)" stroke-width="1.75" fill="none">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.8214 2.48697 15.5291 3.33782 17L2 22L7 20.6622C8.47087 21.513 10.1786 22 12 22Z" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 12h8M12 8v8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1 class="hero-title">Whisper</h1>
+        <p class="hero-subtitle">Simple, secure, peer-to-peer messaging. No middleman, no storage, just direct conversation.</p>
+        <button id="get-started-btn" class="ios-button primary hero-btn">Get Started</button>
+      </div>
+    </div>
+
+    <!-- Setup / Link Sharing Screen -->
+    <div id="setup-screen" class="screen hidden">
+      <div class="glass-panel">
+        <div class="setup-icon">
+          <svg viewBox="0 0 24 24" width="40" height="40" stroke="var(--accent)" stroke-width="1.75" fill="none">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke-linecap="round" stroke-linejoin="round"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <h1 class="logo-title">Whisper</h1>
+        <p class="subtitle">Direct Peer-to-Peer Encrypted Chat</p>
+        
+        <div id="host-section" class="centered-host-section">
+          <!-- Setup Passcode Container -->
+          <div id="setup-passcode-container" class="passcode-container">
+            <p class="instruction-text">Local Encryption Passcode (auto-generated, editable):</p>
+            <div class="passcode-box">
+              <input type="text" id="setup-passcode" placeholder="Enter custom passcode..." autocomplete="off" />
+              <button id="regen-passcode-btn" class="icon-btn" title="Generate Secure Passcode">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button id="create-btn" class="ios-button primary">Start New Chat</button>
+          
+          <div id="link-container" class="hidden">
+            <p class="instruction-text">Copy and send this invite link to start a session:</p>
+            <div class="copy-box">
+              <input type="text" id="share-link" readonly placeholder="Generating session link..." />
+              <button id="copy-btn" class="ios-button small">Copy</button>
+            </div>
+            <div class="waiting-indicator">
+              <span class="pulse-indicator active"></span>
+              <p class="waiting-text">Waiting for guest to join<span class="dots">...</span></p>
+            </div>
+          </div>
+        </div>
+
+        <div id="join-section" class="hidden">
+          <!-- Passcode entry for Guest if not in URL hash -->
+          <div id="join-passcode-container" class="passcode-container hidden">
+            <p class="instruction-text">Enter Shared Passcode to Decrypt Chat:</p>
+            <div class="copy-box" style="margin-bottom: 12px; border: 1px solid var(--border-color);">
+              <input type="text" id="join-passcode" placeholder="Enter session passcode..." autocomplete="off" style="padding: 10px;" />
+            </div>
+            <button id="join-connect-btn" class="ios-button primary" style="width: 100%;">Connect & Decrypt</button>
+          </div>
+          
+          <div id="guest-connecting-status">
+            <p class="joining-text">Establishing peer connection...</p>
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div id="chat-screen" class="screen hidden">
+      <div class="chat-layout">
+        <!-- Sidebar (Conversations & Settings) -->
+        <aside class="chat-sidebar">
+          <div class="sidebar-header">
+            <div class="sidebar-brand">
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.25" fill="none" class="brand-logo-svg">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.8214 2.48697 15.5291 3.33782 17L2 22L7 20.6622C8.47087 21.513 10.1786 22 12 22Z" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Whisper</span>
+            </div>
+            <button id="sidebar-close-btn" class="icon-btn mobile-only">
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          
+          <div class="sidebar-content">
+            <!-- Active Conversation list -->
+            <div class="sidebar-section">
+              <span class="sidebar-section-title">Conversations</span>
+              <ul class="conversation-list">
+                <li class="conversation-item active">
+                  <div class="avatar-sm">AP</div>
+                  <div class="conversation-info">
+                    <span class="name">Anonymous Peer</span>
+                    <span class="sub-status" id="sidebar-status-val">Connected</span>
+                  </div>
+                  <span class="status-dot"></span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- invite card widget -->
+            <div class="sidebar-invite-widget">
+              <span class="widget-title">Invite Someone</span>
+              <p class="widget-desc">Share this link to add another peer to this direct chat:</p>
+              <div class="copy-box sidebar-copy">
+                <input type="text" id="sidebar-share-link" readonly value="" placeholder="Establishing..." />
+                <button id="sidebar-copy-btn" class="ios-button small">Copy</button>
+              </div>
+            </div>
+
+            <!-- session info -->
+            <div class="sidebar-session-info">
+              <div class="info-row">
+                <span class="info-label">E2E Cryptography:</span>
+                <span class="info-val text-secure">Double AES-GCM</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Key Source:</span>
+                <span class="info-val" style="color: var(--blue);">Local Passcode</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Serverless:</span>
+                <span class="info-val">Yes (Direct)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-footer">
+            <button id="new-chat-btn" class="ios-button secondary">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" style="margin-right: 4px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              Leave Session
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main Chat Panel -->
+        <div class="chat-main">
+          <header class="chat-header">
+            <div class="header-left">
+              <button id="sidebar-toggle-btn" class="icon-btn mobile-only">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+              </button>
+              <div class="avatar">AP</div>
+              <div class="user-info">
+                <h2>Anonymous Peer</h2>
+                <span class="status"><span class="status-dot"></span>Connected & Secure</span>
+              </div>
+            </div>
+            <div class="header-right">
+              <span class="badge privacy-badge">P2P Double Secure</span>
+            </div>
+          </header>
+          
+          <main id="chat-container">
+            <div class="chat-container-inner">
+              <div class="encryption-notice">
+                <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                Double Secured: WebRTC DTLS + Client-Side AES-GCM (Zero-Knowledge).
+              </div>
+              <div id="messages"></div>
+              <div id="typing-indicator" class="hidden">
+                <div class="bubble typing">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+              </div>
+            </div>
+          </main>
+
+          <footer class="chat-input-area">
+            <div class="chat-input-area-inner">
+              <input type="text" id="message-input" placeholder="Type a secure message..." autocomplete="off" />
+              <button id="send-btn" class="ios-send-button" disabled>
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="white" stroke-width="2.5" fill="none"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              </button>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
