@@ -78,7 +78,7 @@ npm run dev
 
 ## 🧑‍💻 Authors & Roles
 
-* **Anandi Sah** (Main Author) — Lead System Architect & WebRTC Engineer
+* **Anandi Sah** — Lead System Architect & WebRTC Engineer
 * **Devyansh Nigam** — Core Developer & UI/UX Designer
 
 ---
